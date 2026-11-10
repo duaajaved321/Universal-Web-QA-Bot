@@ -1,44 +1,60 @@
-# 🌐 Universal Web QA Bot (AI Research Assistant)
+# Universal Web QA Bot
 
-## Live Demo Link: https://huggingface.co/spaces/duaajaved321/MSDSF24M005_ver1?logs=container
+An interactive webpage question-answering prototype. A user provides a webpage URL and a question; the application fetches the page content, extracts readable text, and sends that context to an LLM to generate an answer.
 
-## 📖 Project Overview
-The Universal Web QA Bot is an interactive AI application that allows users to instantly chat with any webpage. By simply inputting a URL and a question, the system dynamically scrapes the target site, cleans the HTML payload, and leverages a Large Language Model (LLM) to provide highly accurate, context-aware answers based strictly on the webpage's content.
+**Live demo:** https://huggingface.co/spaces/duaajaved321/MSDSF24M005_ver1?logs=container
 
-This project serves as a lightweight **Retrieval-Augmented Generation (RAG)** pipeline, demonstrating how to bridge the gap between live web data and generative AI.
+## How It Works
 
-## 🛠️ Tech Stack
-* **Language:** Python
-* **LLM Engine:** Groq API (Meta Llama 3.3 70B)
-* **Web Scraping:** ZenRows API, `requests`
-* **HTML Parsing:** BeautifulSoup4
-* **User Interface:** Gradio
+1. Accepts a webpage URL and a user question through a Gradio interface.
+2. Uses the ZenRows API to retrieve the webpage, including JavaScript-rendered content.
+3. Parses the returned HTML with BeautifulSoup and removes non-content elements such as scripts, styles, navigation, and footer sections.
+4. Truncates the extracted text to a fixed 10,000-character context window.
+5. Sends the page text and question to Groq's Llama model, with instructions to answer using the supplied context.
+6. Displays the generated answer in the Gradio interface.
 
----
+## Technology Stack
 
-## 🚀 How It Works (The Pipeline)
+- Python
+- Gradio
+- Groq API — Llama 3.3 70B Versatile
+- ZenRows API
+- Requests
+- BeautifulSoup4
 
-### 1. Dynamic Web Scraping & Ingestion
-* Utilizes the **ZenRows API** to execute JS-rendered scraping and bypass anti-bot protections (Cloudflare, CAPTCHAs) using premium proxies.
-* Handles HTTP connection errors and timeouts gracefully to ensure pipeline stability.
+## Run Locally
 
-### 2. Content Extraction & Sanitization
-* Uses **BeautifulSoup4** to parse the raw DOM.
-* Strips out noisy, non-content HTML tags (e.g., `<script>`, `<style>`, `<nav>`, `<footer>`) using `.decompose()`.
-* Formats the remaining DOM into clean, continuous text strings and truncates the payload to ensure it fits within the LLM's maximum context window limit.
+1. Clone this repository.
+2. Install the dependencies used by the application:
 
-### 3. Context-Aware AI Generation
-* Integrates the **Groq API** to utilize the ultra-fast `llama-3.3-70b-versatile` model.
-* Uses precise **System Prompts** to restrict the AI's knowledge base. The model is instructed to act as a "Professional Web Analyst" and answer the user's question *only* using the dynamically scraped text context, effectively eliminating AI hallucinations.
+   ```bash
+   pip install gradio groq requests beautifulsoup4
+   ```
 
-### 4. Interactive User Interface
-* Built a modern, responsive front-end using **Gradio** (`gr.Blocks`).
-* Features a clean two-column layout for URL/Question inputs and an isolated output box for the AI's analytical response.
+3. Configure the following environment variables:
 
----
+   - `ZENROWS_KEY`
+   - `GROQ_KEY`
 
-## 🧠 Key Concepts & Skills Learned
-1. **LLM Integration & Prompt Engineering:** Learning how to constrain a Large Language Model's outputs by providing strict system prompts and dynamic context.
-2. **Modern Web Scraping:** Moving beyond simple `requests.get()` to handle modern web architecture (JavaScript rendering and bot-protection) using specialized APIs like ZenRows.
-3. **Data Sanitization:** Understanding that AI models perform better when HTML payloads are stripped of semantic noise and structural code.
-4. **Rapid UI Prototyping:** Using Gradio to quickly deploy Python scripts into fully functional, sharable web applications without needing to write HTML/CSS/React.
+4. Run:
+
+   ```bash
+   python "app (1).py"
+   ```
+
+## Architecture and Scope
+
+This implementation is a **context-grounded webpage Q&A prototype**, not a full vector-retrieval RAG pipeline. It does not currently implement document chunking, embedding generation, a vector database, top-k semantic retrieval, or retrieval evaluation. Instead, the extracted page text is passed directly to the LLM as context.
+
+The system prompt encourages answers to stay grounded in the provided page text, but prompting alone cannot guarantee that every answer is correct or free from hallucinations.
+
+## Limitations and Next Improvements
+
+- Add URL validation and network access restrictions before accepting arbitrary URLs.
+- Improve scraping and extraction error handling.
+- Replace fixed character truncation with structure-aware chunking.
+- Add embeddings, semantic retrieval, and source-level citations.
+- Evaluate answer faithfulness and retrieval quality on a prepared test set.
+- Add automated tests and a reproducible dependency file.
+
+This is an educational prototype. Answers should be checked against the original webpage.
